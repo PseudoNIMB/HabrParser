@@ -2,6 +2,7 @@ package com.inmicro.habrparser
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Checkbox
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -40,15 +44,24 @@ import kotlinx.coroutines.launch
 fun App() {
     MaterialTheme {
         val scope = rememberCoroutineScope()
+
         var showContent by remember { mutableStateOf(false) }
         var searchValue by remember { mutableStateOf("") }
+        var orderBy by remember { mutableStateOf("date") }
+
         var requestValue = listOf<LocalRssItem>()
         var saveAsString by remember { mutableStateOf(StringBuilder()) }
+
+        var dropdownExpanded by remember { mutableStateOf(false) }
+
+        var checkboxLink by remember { mutableStateOf(true) }
+        var checkboxDate by remember { mutableStateOf(true) }
+        var checkboxDescription by remember { mutableStateOf(true) }
 
         LaunchedEffect(showContent) {
             scope.launch {
                 try {
-                    requestValue = RequestLogic().rssParseRequest(searchValue)
+                    requestValue = RequestLogic().rssParseRequest(searchValue, orderBy)
                 } catch (e: Exception) {
                     e.localizedMessage ?: "error"
                 }
@@ -76,6 +89,42 @@ fun App() {
                     modifier = Modifier.weight(4f).fillMaxHeight(),
                     shape = RoundedCornerShape(8.dp)
                 )
+                Spacer(Modifier.width(20.dp))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                ) {
+                    Button(
+                        onClick = { dropdownExpanded = true },
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Сортировка\nпо " + if (orderBy == "date") "дате" else if (orderBy == "relevance") "релевантности" else "рейтингу")
+                    }
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            orderBy = "date"
+                            dropdownExpanded = !dropdownExpanded
+                        }) {
+                            Text("По дате")
+                        }
+                        DropdownMenuItem(onClick = {
+                            orderBy = "relevance"
+                            dropdownExpanded = !dropdownExpanded
+                        }) {
+                            Text("По релевантности")
+                        }
+                        DropdownMenuItem(onClick = {
+                            orderBy = "rating"
+                            dropdownExpanded = !dropdownExpanded
+                        }) {
+                            Text("По рейтингу")
+                        }
+                    }
+                }
                 Spacer(Modifier.width(20.dp))
                 Button(
                     onClick = {
@@ -111,6 +160,40 @@ fun App() {
                     Text("Сохранить")
                 }
             }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth(0.9f).height(80.dp).padding(all = 8.dp)
+            ) {
+                Spacer(Modifier.weight(4f))
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Checkbox(checked = checkboxLink, onCheckedChange = {
+                        checkboxLink = !checkboxLink
+                    })
+                    Text("Ссылка")
+                }
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Checkbox(checked = checkboxDate, onCheckedChange = {
+                        checkboxDate = !checkboxDate
+                    })
+                    Text("Дата")
+                }
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Checkbox(checked = checkboxDescription, onCheckedChange = {
+                        checkboxDescription = !checkboxDescription
+                    })
+                    Text("Краткое описание")
+                }
+            }
             Spacer(Modifier.height(20.dp))
             AnimatedVisibility(showContent) {
                 Column(
@@ -122,14 +205,26 @@ fun App() {
                     saveAsString = StringBuilder()
                     requestValue.forEachIndexed { index,item ->
                         Text("#${index+1}: " + item.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        Text(item.link, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
-                        Text(item.pubDate, style = MaterialTheme.typography.bodyMedium)
-                        Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                        if (checkboxLink) {
+                            Text(item.link, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
+                        }
+                        if (checkboxDate) {
+                            Text(item.pubDate, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        if (checkboxDescription) {
+                            Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                        }
                         Spacer(Modifier.height(8.dp))
                         saveAsString.append("#${index+1}: " + item.title + "\n")
-                        saveAsString.append(item.link + "\n")
-                        saveAsString.append(item.pubDate + "\n")
-                        saveAsString.append(item.description)
+                        if (checkboxLink) {
+                            saveAsString.append(item.link + "\n")
+                        }
+                        if (checkboxDate) {
+                            saveAsString.append(item.pubDate + "\n")
+                        }
+                        if (checkboxDescription) {
+                            saveAsString.append(item.description)
+                        }
                     }
                 }
             }
