@@ -24,6 +24,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.coroutines.core)
             implementation("com.prof18.rssparser:rssparser:6.0.10")
+            implementation("be.digitalia.compose.htmlconverter:htmlconverter:1.1.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -34,7 +35,6 @@ kotlin {
         }
     }
 }
-
 
 compose.desktop {
     application {
