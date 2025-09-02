@@ -34,21 +34,4 @@ class RequestLogic {
 
         return feed
     }
-
-//    private val client = HttpClient(OkHttp) {
-//        engine {
-//            config {
-//                followRedirects(true)
-//            }
-//        }
-//    }
-//
-//    suspend fun testGetRequest(): String {
-//        val response = client.get("https://api.habr.ru/v1")
-//        return response.bodyAsText()
-//    }
-
-    fun greet(): String {
-        return "Hello, ${platform.name}!"
-    }
 }

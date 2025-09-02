@@ -23,8 +23,18 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.coroutines.core)
+
+            //RSS feed parser
             implementation("com.prof18.rssparser:rssparser:6.0.10")
+
+            //Html tags deletion from text
             implementation("be.digitalia.compose.htmlconverter:htmlconverter:1.1.0")
+
+            //File save dialogs
+            implementation("io.github.vinceglb:filekit-core:0.10.0")
+            implementation("io.github.vinceglb:filekit-dialogs:0.10.0")
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.10.0")
+            implementation("io.github.vinceglb:filekit-coil:0.10.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

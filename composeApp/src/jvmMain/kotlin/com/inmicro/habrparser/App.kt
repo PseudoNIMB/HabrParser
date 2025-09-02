@@ -26,6 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openFileSaver
+import io.github.vinceglb.filekit.writeString
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -40,6 +43,7 @@ fun App() {
         var showContent by remember { mutableStateOf(false) }
         var searchValue by remember { mutableStateOf("") }
         var requestValue = listOf<LocalRssItem>()
+        var saveAsString by remember { mutableStateOf(StringBuilder()) }
 
         LaunchedEffect(showContent) {
             scope.launch {
@@ -59,7 +63,7 @@ fun App() {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(0.6f).height(80.dp).padding(all = 8.dp)
+                modifier = Modifier.fillMaxWidth(0.9f).height(80.dp).padding(all = 8.dp)
             ) {
                 OutlinedTextField(
                     value = searchValue,
@@ -69,7 +73,7 @@ fun App() {
                     },
                     singleLine = true,
                     maxLines = 1,
-                    modifier = Modifier.weight(3f).fillMaxHeight(),
+                    modifier = Modifier.weight(4f).fillMaxHeight(),
                     shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(Modifier.width(20.dp))
@@ -93,7 +97,21 @@ fun App() {
                 ) {
                     Text("Поиск")
                 }
+                Spacer(Modifier.width(20.dp))
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val file = FileKit.openFileSaver(searchValue, "txt")
+                            file?.writeString(saveAsString.toString())
+                        }
+                    },
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Сохранить")
+                }
             }
+            Spacer(Modifier.height(20.dp))
             AnimatedVisibility(showContent) {
                 Column(
                     modifier = Modifier.fillMaxWidth(0.9f).verticalScroll(rememberScrollState()),
@@ -101,12 +119,17 @@ fun App() {
                 ) {
                     Text("Последние статьи с хабра по теме \"$searchValue\": ", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(20.dp))
+                    saveAsString = StringBuilder()
                     requestValue.forEachIndexed { index,item ->
                         Text("#${index+1}: " + item.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                         Text(item.link, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
                         Text(item.pubDate, style = MaterialTheme.typography.bodyMedium)
                         Text(item.description, style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
+                        saveAsString.append("#${index+1}: " + item.title + "\n")
+                        saveAsString.append(item.link + "\n")
+                        saveAsString.append(item.pubDate + "\n")
+                        saveAsString.append(item.description)
                     }
                 }
             }
