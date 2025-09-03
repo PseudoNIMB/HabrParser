@@ -2,8 +2,10 @@ package com.inmicro.habrparser
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -27,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +45,8 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun App() {
+    val uriHandler = LocalUriHandler.current
+
     MaterialTheme {
         val scope = rememberCoroutineScope()
 
@@ -97,7 +102,8 @@ fun App() {
                     Button(
                         onClick = { dropdownExpanded = true },
                         modifier = Modifier.fillMaxSize(),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(4.dp)
                     ) {
                         Text("Сортировка\nпо " + if (orderBy == "date") "дате" else if (orderBy == "relevance") "релевантности" else "рейтингу")
                     }
@@ -142,7 +148,8 @@ fun App() {
                         }
                     },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(4.dp)
                 ) {
                     Text("Поиск")
                 }
@@ -155,7 +162,8 @@ fun App() {
                         }
                     },
                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(4.dp)
                 ) {
                     Text("Сохранить")
                 }
@@ -206,7 +214,14 @@ fun App() {
                     requestValue.forEachIndexed { index,item ->
                         Text("#${index+1}: " + item.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                         if (checkboxLink) {
-                            Text(item.link, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
+                            Text(
+                                item.link,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontStyle = FontStyle.Italic,
+                                modifier = Modifier.clickable {
+                                    uriHandler.openUri(item.link)
+                                }
+                            )
                         }
                         if (checkboxDate) {
                             Text(item.pubDate, style = MaterialTheme.typography.bodyMedium)

@@ -6,7 +6,6 @@ import com.prof18.rssparser.model.RssChannel
 import okhttp3.OkHttpClient
 
 class RequestLogic {
-    private val platform = getPlatform()
     val feed = mutableListOf<LocalRssItem>()
 
     val builder = RssParserBuilder(
@@ -16,7 +15,7 @@ class RequestLogic {
     val rssParser = builder.build()
 
     suspend fun rssParseRequest(input: String, orderBy: String): List<LocalRssItem> {
-        val rssChannel: RssChannel = rssParser.getRssChannel("https://habr.com/ru/rss/search/?q=$input&order_by=$orderBy&target_type=posts&hl=ru&fl=ru&fl=ru&limit=100")
+        val rssChannel: RssChannel = rssParser.getRssChannel("https://habr.com/ru/rss/search/?q=$input&order_by=$orderBy&target_type=posts&hl=ru&fl=ru&fl=ru&limit=100&with_hubs=true:&with_tags=true:")
         rssChannel.items.forEach {
             feed.add(
                 LocalRssItem(
@@ -27,8 +26,6 @@ class RequestLogic {
                 )
             )
         }
-
-
 
         return feed
     }

@@ -53,7 +53,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.inmicro.habrparser"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
         }
     }
 }
